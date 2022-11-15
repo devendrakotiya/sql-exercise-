@@ -1,0 +1,149 @@
+-- Group By, Order By and Having Conditions
+-- 2.3.1 Write a query to display number of employees in each department and group by department?
+
+select dept_name,count(dept_name) as total_emp_in_dept from department d left join employee e 
+on e.dept_id=d.dept_id group by d.dept_name;
+
+-- 2.3.2. Write query to fetch employee name, department number of all employees in departments 20 or 50 in ascending alphabetical and order by name?
+
+select e.emp_name,e.dept_id from employee e where e.dept_id in (2,4) order by e.emp_name asc;
+
+-- 2.3.3. Write a query to Display the employee name, department number, and department name for each employee order by employee name?
+
+select e.emp_name,e.dept_id,d.dept_name from employee e,department d where e.dept_id=d.dept_id order by e.emp_name;
+
+-- 2.3.4. Write a query to get the employee name, department id, years of experience for unmarried employees group by experience and order by department id?
+
+select e.yrs_of_exp from employee e
+inner join department d on e.dept_id= d.dept_id
+where e.martial_status = 'unmarried'
+group by e.yrs_of_exp order by e.dept_id;
+
+-- Joins
+-- 2.4.1 Write a query to get employee name, employee id, department name who belongs to state ANDHRA PRADESH use left join?
+
+select e.emp_name,e.employee_id,d.dept_name from employee e left join department d on e.employee_id=d.dept_id 
+where e.employee_id in
+(select dept_id from department d left join location l on d.loc_id=l.loc_id where l.state='madhya pradesh')
+
+-- 2.4.2 Write query to find employee name, salary and job title for all employees use right join?
+
+select e.emp_name, e.salary, j.job_title from employee e right join jobs j on e.job_id=j.job_id
+
+-- 2.4.3 Write a query to get number of employees with same job title use inner join?
+
+SELECT COUNT(EMPLOYEE_ID) AS NO_OF_EMPLOYEES, J.JOB_TITLE
+FROM EMPLOYEE E
+INNER JOIN JOBS J
+ON E.JOB_ID = J.JOB_ID
+GROUP BY J.JOB_TITLE
+HAVING COUNT(E.JOB_ID)>1;
+
+-- 2.4.4 Write q query to get employee name, department name, state who are unmarried use full join?
+
+select e.emp_name,d.dept_name from employee e,department d, location l where e.dept_id=d.dept_id and d.loc_id=l.loc_id and e.martial_status='unmarried';
+
+
+-- Aggregations
+
+-- 2.5.1 Write a query to get difference between highest and lowest salaries and label the column difference?
+
+select (max(salary)-min(salary)) as salary_diff from employee ;
+
+-- 2.5.2 Write a query to display employees who earn more than the average salary and who work in the IT department?
+
+select e.emp_name,d.dept_name from employee e inner join Department d
+WHERE d.DEPT_ID IN 
+(SELECT DEPT_ID
+FROM Department d
+WHERE DEPT_NAME = 'Information Technology') 
+AND salary > (SELECT avg(salary) FROM Employee); 
+
+-- 2.5.3 Write a query to display what is the average, maximum and minimum salary for each department?
+
+SELECT AVG(E.SALARY), MAX(E.SALARY), MIN(E.SALARY), D.dept_name
+FROM EMPLOYEE E
+RIGHT JOIN DEPARTMENT D
+ON E.DEPT_ID = D.DEPT_ID
+group by D.DEPT_NAME;
+
+-- SQL Functions
+-- 2.6.1 Write an SQL query to print the first three characters of EMPLOYEE NAME?
+
+SELECT substring(EMP_NAME,1,3)
+FROM employee;
+
+-- 2.6.2 Write a query to print employee name ends with ‘h’ and contains six alphabets?
+
+SELECT emp_name
+FROM employee
+WHERE emp_name LIKE '%n' AND LENGTH (emp_name) = 4
+
+-- 2.6.3 Write a query to get age from date of birth in employee table?
+
+SELECT emp_name, dob, TIMESTAMPDIFF(YEAR, dob, current_date())
+FROM Employee;
+
+-- 2.6.4 Write a query to convert employee into lower case and find the length of the employee name?
+
+select lower(emp_name),length(emp_name) from employee ;
+
+-- 2.6.5 Write a query to add current date as date to the employee table?
+
+ALTER TABLE EMPLOYEE
+ADD today_date date NULL;
+INSERT INTO Employee(today_date) VALUES(current_date);
+select * from Employee;
+
+-- 2.6.6 Write a query to convert decimal type to integer for salary column in employee table?
+
+alter table employee modify column salary integer;
+
+-- 2.6.7 Write a query to format joining date to format YYYY-MM-DD ?
+
+--  Index and view
+
+-- 2.7.1 Write a query to create a view that shows employee name, phone number, Manager id from employees table who are from city = Bangalore?
+
+create view temp as select emp_name, phone_numb, manager_id from Employee join 
+Department using (dept_id) join location using (loc_id)
+where city='gwalior';
+select * from temp;
+
+select * from location
+
+-- 2.7.2 Write a query to create an index on employee table with employee name, DOB and martial status?
+
+CREATE  INDEX idx 
+on employee(emp_name,dob,martial_status);
+
+-- Sub Queries
+-- 2.8.1 Write a query to fetch all the employee details who do not have location Id 2546?
+
+SELECT * FROM employee e
+inner join Department d ON e.DEPT_ID = d.DEPT_ID 
+inner join location l on d.LOC_ID = l.LOC_ID
+WHERE l.LOC_ID NOT IN 
+(SELECT LOC_ID 
+FROM Location
+WHERE Loc_id = 3);
+
+-- 2.8.2 Write a query to fetch employee details whose salaries are greater than the average salary of all the employees?
+
+SELECT * FROM employee
+WHERE salary > 
+(SELECT avg(salary)FROM employee);
+
+-- 2.8.3 Write a query to find all the departments do not have any employee with salary greater than 2.5 lakhs?
+
+SELECT d.DEPT_NAME FROM
+Department d WHERE (SELECT COUNT(*) FROM Employee e WHERE e.DEPT_ID = d.Dept_ID AND e.Salary > 30000)
+
+
+
+
+
+
+
+
+
